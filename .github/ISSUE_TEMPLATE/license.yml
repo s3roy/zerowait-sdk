@@ -1,0 +1,28 @@
+name: License request
+description: Ask for a Zerowait license key. This issue is public; don't post anything private.
+title: "License request: "
+labels: ["license"]
+body:
+  - type: markdown
+    attributes:
+      value: "This issue is **public**. Share only what you're happy to show; we'll reply here to arrange payment and send the key privately."
+  - type: dropdown
+    id: plan
+    attributes:
+      label: Plan
+      options: [Indie, Team, Enterprise, "Not sure yet"]
+    validations: { required: true }
+  - type: input
+    id: company
+    attributes:
+      label: Company or your name
+    validations: { required: true }
+  - type: textarea
+    id: apps
+    attributes:
+      label: App ids
+      description: Android package names and/or iOS bundle ids the key should cover (one per line). You can send these privately later instead.
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else

@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zerowait: web screens that open before the tap</title>
+<meta name="description" content="Zerowait is an SDK for native apps with web screens: checkout, help, onboarding, live streams, video calls. It loads your web app in the background and opens the screen in place, so it appears in a fraction of the time.">
+<meta property="og:title" content="Zerowait: web screens that open before the tap">
+<meta property="og:description" content="Keep your app's web screens warm. SDK for Android and iOS.">
+<meta property="og:image" content="https://s3roy.github.io/zerowait-sdk/assets/poster.jpg">
+<meta name="theme-color" content="#18203a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='none' stroke='%238caadc' stroke-width='3'/%3E%3Ccircle cx='12' cy='12' r='5' fill='%23ff6a2b'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="./">
+      <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="#8caadc" stroke-width="3"/><circle cx="12" cy="12" r="5" fill="#ff6a2b"/></svg>
+      Zerowait
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a class="hide-sm" href="#uses">Use cases</a>
+      <a href="docs/">Docs</a>
+      <a class="hide-sm" href="#pricing">Pricing</a>
+      <a class="btn btn-primary btn-sm" href="#pricing">Buy a license</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <h1>Your web screens are ready before they tap.</h1>
+      <p class="lede">Zerowait is an SDK for native apps that show parts of themselves as web pages: checkout, a help centre, onboarding, a live stream, a video call. It loads your web app in the background with the user already signed in, then opens the screen in place instead of loading a page.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#uses">See what it speeds up</a>
+        <a class="btn btn-quiet" href="docs/">Read the docs</a>
+      </div>
+
+      <figure class="race" aria-label="Time from tap to screen on a hosted Next.js app: 3461 milliseconds without Zerowait, 853 milliseconds with Zerowait">
+        <div class="race-row race-cold">
+          <div class="race-label">Without Zerowait<small>WebView created on tap</small></div>
+          <div class="race-track"><div class="race-bar"></div><span class="race-ms outside">0 ms</span></div>
+        </div>
+        <div class="race-row race-warm">
+          <div class="race-label">With Zerowait<small>App warm, route changed in place</small></div>
+          <div class="race-track"><div class="race-bar"></div><span class="race-ms outside">0 ms</span></div>
+        </div>
+        <figcaption class="race-foot">
+          <p>Tap to screen on a production Next.js app with a real backend, Android 15 emulator. Bars fill in real time.</p>
+          <button class="linkish" type="button" data-replay>Replay</button>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="uses">
+    <div class="wrap">
+      <div class="section-intro">
+        <h2>Any screen that is a web page.</h2>
+        <p>Native apps keep some screens on the web so they can change them without an app release. Zerowait takes away the wait those screens add.</p>
+      </div>
+      <dl class="features">
+        <div><dt>Checkout and payments</dt><dd>The cart is already loaded, so tapping Pay shows the payment step without a blank screen.</dd></div>
+        <div><dt>Help centre and support</dt><dd>Open the right article or chat from anywhere in the app, already signed in.</dd></div>
+        <div><dt>Onboarding and KYC</dt><dd>Long web flows start at once, and the flow can finish its work before the screen closes.</dd></div>
+        <div><dt>Live streams and video calls</dt><dd>A hosted call or stream page opens on the right room. A bundled WebRTC module is included for apps that need one.</dd></div>
+        <div><dt>Offers, campaigns and mini-apps</dt><dd>Pages your marketing or partners change every week, without the load time that makes people back out.</dd></div>
+        <div><dt>Links you can't predict</dt><dd>A spare engine, already started, opens any URL faster even when you don't know it in advance.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section id="demo">
+    <div class="wrap">
+      <div class="section-intro">
+        <h2>See it on a device.</h2>
+        <p>The video call module in the Zerowait sample app, recorded on an Android emulator. Every number in the video comes from the app's own timer.</p>
+      </div>
+      <div class="demo-video">
+        <video controls playsinline preload="metadata" poster="assets/poster.jpg">
+          <source src="assets/demo.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  </section>
+
+  <section id="why">
+    <div class="wrap">
+      <div class="section-intro">
+        <h2>Where the wait comes from.</h2>
+        <p>A web screen opened from scratch does four things after the tap. Zerowait moves each one before it.</p>
+      </div>
+      <ol class="stages">
+        <li class="stage">
+          <div><h3>Start the browser engine</h3><p>The first WebView in your app starts Chromium or WebKit. On Android that alone can take more than a second.</p></div>
+          <div class="fix"><strong>Zerowait</strong><p>Creates the WebView when your app goes idle after launch, long before anyone opens a web screen.</p></div>
+        </li>
+        <li class="stage">
+          <div><h3>Load your web app</h3><p>HTML, scripts, framework start-up and the first API calls, often over a mobile network.</p></div>
+          <div class="fix"><strong>Zerowait</strong><p>Loads a page of your web app in the background with the user's cookies already set, and fetches the next route's code.</p></div>
+        </li>
+        <li class="stage">
+          <div><h3>Get to the right screen</h3><p>A full page load for every screen, even though the app is the same one.</p></div>
+          <div class="fix"><strong>Zerowait</strong><p>Changes route inside the running app. Next.js works with no changes; any other framework needs one line.</p></div>
+        </li>
+        <li class="stage">
+          <div><h3>Leave cleanly</h3><p>Closing mid-request leaves calls running, orders held or drafts lost.</p></div>
+          <div class="fix"><strong>Zerowait</strong><p>Runs your leave script, waits until its request has finished, then returns to the warm page for next time.</p></div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <div class="section-intro">
+        <h2>The parts you would otherwise debug in production.</h2>
+      </div>
+      <dl class="features">
+        <div><dt>Several pages, one memory budget</dt><dd>Keep checkout, help and live warm at once. A cap releases the least recently used idle page first, never the one on screen.</dd></div>
+        <div><dt>No leaked Activities</dt><dd>When a screen closes, the WebView is handed back to the app context and stays warm for the next time.</dd></div>
+        <div><dt>Recovers from renderer crashes</dt><dd>If the browser renderer dies, your app does not. Zerowait rebuilds the WebView and warms it again by itself.</dd></div>
+        <div><dt>Locked to your origins</dt><dd>The native bridge and camera access exist only for pages you trust. Anything else gets nothing, even if your app holds the permissions.</dd></div>
+        <div><dt>Signed in from the start</dt><dd>The user's session cookies are written before the first request.</dd></div>
+        <div><dt>Time to screen built in</dt><dd>Name the text that means "ready" and Zerowait reports when it first appears, with no change to your web app.</dd></div>
+        <div><dt>Local and offline pages</dt><dd>Serve bundled pages or an app shell from your APK for any route.</dd></div>
+        <div><dt>Video call module</dt><dd>A bundled WebRTC page, native signaling relay, call audio and stats for apps that need calls.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section id="code">
+    <div class="wrap code-steps">
+      <div>
+        <h2>Three calls to wire it in.</h2>
+        <ol>
+          <li><strong>Register at launch</strong><p>Name the page, its warm URL and the cookies it needs.</p></li>
+          <li><strong>Prewarm</strong><p>On the next idle moment, so app start is not slowed down.</p></li>
+          <li><strong>Open</strong><p>From any screen, with the URL you want. The running app changes route.</p></li>
+        </ol>
+        <p><a href="docs/#quick-start">Full quick start</a></p>
+      </div>
+      <div data-tabs>
+        <div class="tabs" role="tablist" aria-label="Code">
+          <button class="tab" role="tab" id="tab-android" aria-controls="code-android" aria-selected="true">Android</button>
+          <button class="tab" role="tab" id="tab-ios" aria-controls="code-ios" aria-selected="false">iOS</button>
+          <button class="tab" role="tab" id="tab-web" aria-controls="code-web" aria-selected="false">Your web app</button>
+        </div>
+        <div class="panel" id="code-android" role="tabpanel" aria-labelledby="tab-android">
+<pre><code data-lang="kotlin">// Application.onCreate
+Zerowait.register(this, "checkout", WarmPageConfig(
+    warmUrl = "https://shop.example.com/cart",
+    cookies = listOf(PageCookie("session", token)),
+))
+Zerowait.prewarm(this, "checkout")
+
+// When the user taps Checkout
+Zerowait.open(this, "checkout", container,
+    "https://shop.example.com/checkout?step=pay")</code></pre>
+        </div>
+        <div class="panel" id="code-ios" role="tabpanel" aria-labelledby="tab-ios" hidden>
+<pre><code data-lang="swift">// AppDelegate, at launch
+Zerowait.register("checkout", WarmPageConfig(
+    warmURL: "https://shop.example.com/cart",
+    cookies: [PageCookie(name: "session", value: token)]
+))
+Zerowait.prewarm("checkout")
+
+// When the user taps Checkout
+Zerowait.open("checkout", in: container,
+    url: "https://shop.example.com/checkout?step=pay")</code></pre>
+        </div>
+        <div class="panel" id="code-web" role="tabpanel" aria-labelledby="tab-web" hidden>
+<pre><code data-lang="js">// Next.js: nothing to add.
+
+// React Router, Vue, Angular, anything else: one line
+window.__zerowaitNavigate = (path) =&gt; router.push(path)</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tested">
+    <div class="wrap">
+      <div class="section-intro">
+        <h2>Tested on a device, every release.</h2>
+        <p>Zerowait's end-to-end suites run real WebViews on the Android emulator and the iOS Simulator: a bundled single-page app, a hosted Next.js app against a real backend, and the video call module with real WebRTC. The suites run against the exact files we ship, not the source.</p>
+      </div>
+      <div class="stat-line">
+        <div><b>32</b>end-to-end tests on Android</div>
+        <div><b>25</b>end-to-end tests on iOS</div>
+        <div><b>64</b>unit tests</div>
+      </div>
+      <ul class="tests">
+        <li><strong>Opens in place</strong><span>Same WebView, same document, route changed, no page load.</span></li>
+        <li><strong>Back to warm after closing</strong><span>The page returns to its warm route and keeps its state.</span></li>
+        <li><strong>Next.js with no changes</strong><span>A production app opens its route through the Next.js router.</span></li>
+        <li><strong>Any router with one line</strong><span>The page hook, and the history fallback for pages without it.</span></li>
+        <li><strong>Pages with no router</strong><span>Fall back to a normal load in the warm engine, reported as such.</span></li>
+        <li><strong>Spare engine</strong><span>Any URL loads into an already started WebView.</span></li>
+        <li><strong>Memory cap</strong><span>The least recently used idle page is released; the page on screen never is.</span></li>
+        <li><strong>Signed in from the first request</strong><span>Cookies readable by the page before it loads.</span></li>
+        <li><strong>Leaving waits for the request</strong><span>The next visit works because the last one finished properly.</span></li>
+        <li><strong>Faster than without</strong><span>The same screen, warm against cold, measured by the app.</span></li>
+        <li><strong>Untrusted page</strong><span>No bridge and camera denied, even with app permissions granted.</span></li>
+        <li><strong>Renderer crash</strong><span>Recovers by itself, then works again.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <div class="wrap">
+      <div class="section-intro">
+        <h2>Pricing</h2>
+        <p>Pay once per app, or per year for a team. Every license covers Android and iOS. Try it first: without a key everything works, and release builds show a small "unlicensed" badge.</p>
+      </div>
+      <div class="plans">
+        <div class="plan">
+          <h3>Indie</h3>
+          <div class="price">$199 <small>one-time</small></div>
+          <ul>
+            <li>1 app, Android and iOS</li>
+            <li>12 months of updates</li>
+            <li>Email support</li>
+          </ul>
+          <a class="btn btn-quiet" href="#pricing" data-checkout="indie">Buy Indie</a>
+        </div>
+        <div class="plan featured">
+          <h3>Team</h3>
+          <div class="price">$799 <small>per year</small></div>
+          <ul>
+            <li>Up to 5 apps</li>
+            <li>All updates while subscribed</li>
+            <li>Priority support with 1 business day replies</li>
+            <li>Integration review call</li>
+          </ul>
+          <a class="btn btn-primary" href="#pricing" data-checkout="team">Buy Team</a>
+        </div>
+        <div class="plan">
+          <h3>Enterprise</h3>
+          <div class="price">Custom</div>
+          <ul>
+            <li>Unlimited apps</li>
+            <li>Source code license</li>
+            <li>Support agreement</li>
+          </ul>
+          <a class="btn btn-quiet" href="#pricing" data-checkout="enterprise">Contact sales</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <div class="section-intro"><h2>Questions</h2></div>
+      <div class="faq">
+        <details><summary>Do I have to change my web app?</summary><p>Not for Next.js. For other frameworks, add one line so Zerowait can change route: <code>window.__zerowaitNavigate = (path) =&gt; router.push(path)</code>. Without it, screens still open faster because the browser engine is started and your app's files are cached, but each one loads as a page.</p></details>
+        <details><summary>How much memory does a warm page use?</summary><p>About as much as the same page open in a browser tab. Warm only the screens people are likely to open next, and set a cap: Zerowait releases the least recently used idle page first, and you can release idle pages when Android reports low memory.</p></details>
+        <details><summary>Does prewarming cost data?</summary><p>A hosted page downloads its files once in the background, as it would on first open. Bundled pages use no network. Nothing else runs until the user opens the screen.</p></details>
+        <details><summary>What about users who aren't signed in yet?</summary><p>Register the page after login, or call <code>setCookies</code> with the new session and prewarm then.</p></details>
+        <details><summary>Does it include a video call backend?</summary><p>No. The video call module relays signaling through a channel you provide, so it works with whatever you already run.</p></details>
+        <details><summary>Which versions are supported?</summary><p>Android 8.0 (API 26) and later with an up-to-date system WebView. iOS 15 and later.</p></details>
+        <details><summary>Are the timings on this page from real phones?</summary><p>They come from an Android 15 emulator, which is slower than most current phones. Absolute numbers on your devices will differ. The gap between cold and warm is what Zerowait removes.</p></details>
+        <details><summary>How is the SDK delivered?</summary><p>Add it from our Maven repository (Android) or with Swift Package Manager (iOS); see the <a href="docs/#install">install guide</a>. After purchase you get a license key for your app ids, one line of code. The SDK is compiled, not source; the Enterprise plan includes source.</p></details>
+        <details><summary>What does the license key do?</summary><p>It is checked inside the app, offline, against your app id. Nothing is sent anywhere and nothing is ever blocked: without a valid key, release builds show a small "Zerowait · unlicensed" label on Zerowait screens. A key keeps working forever in versions you have shipped; your plan decides which SDK updates it covers. See the <a href="terms/">license terms</a>.</p></details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Zerowait</span>
+    <span><a href="docs/">Docs</a> &nbsp; <a href="#pricing">Pricing</a> &nbsp; <a href="#faq">FAQ</a> &nbsp; <a href="terms/">License terms</a></span>
+  </div>
+</footer>
+
+<script src="assets/site.js" defer></script>
+</body>
+</html>
