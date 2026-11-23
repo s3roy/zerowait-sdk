@@ -44,11 +44,11 @@
 
       <figure class="race" aria-label="Time from tap to screen on a hosted Next.js app: 3461 milliseconds without Zerowait, 853 milliseconds with Zerowait">
         <div class="race-row race-cold">
-          <div class="race-label">Without Zerowait<small>WebView created on tap</small></div>
+          <div class="race-label">Without Zerowait<small>Loaded from scratch on tap</small></div>
           <div class="race-track"><div class="race-bar"></div><span class="race-ms outside">0 ms</span></div>
         </div>
         <div class="race-row race-warm">
-          <div class="race-label">With Zerowait<small>App warm, route changed in place</small></div>
+          <div class="race-label">With Zerowait<small>Ready before the tap</small></div>
           <div class="race-track"><div class="race-bar"></div><span class="race-ms outside">0 ms</span></div>
         </div>
         <figcaption class="race-foot">
@@ -69,7 +69,7 @@
         <div><dt>Checkout and payments</dt><dd>The cart is already loaded, so tapping Pay shows the payment step without a blank screen.</dd></div>
         <div><dt>Help centre and support</dt><dd>Open the right article or chat from anywhere in the app, already signed in.</dd></div>
         <div><dt>Onboarding and KYC</dt><dd>Long web flows start at once, and the flow can finish its work before the screen closes.</dd></div>
-        <div><dt>Live streams and video calls</dt><dd>A hosted call or stream page opens on the right room. A bundled WebRTC module is included for apps that need one.</dd></div>
+        <div><dt>Live streams and video calls</dt><dd>A hosted call or stream page opens on the right room. A ready-made video call module is included for apps that need one.</dd></div>
         <div><dt>Offers, campaigns and mini-apps</dt><dd>Pages your marketing or partners change every week, without the load time that makes people back out.</dd></div>
         <div><dt>Links you can't predict</dt><dd>A spare engine, already started, opens any URL faster even when you don't know it in advance.</dd></div>
       </dl>
@@ -99,19 +99,19 @@
       <ol class="stages">
         <li class="stage">
           <div><h3>Start the browser engine</h3><p>The first WebView in your app starts Chromium or WebKit. On Android that alone can take more than a second.</p></div>
-          <div class="fix"><strong>Zerowait</strong><p>Creates the WebView when your app goes idle after launch, long before anyone opens a web screen.</p></div>
+          <div class="fix"><strong>Zerowait</strong><p>Done in the background after launch, without slowing your app down, long before anyone opens a web screen.</p></div>
         </li>
         <li class="stage">
           <div><h3>Load your web app</h3><p>HTML, scripts, framework start-up and the first API calls, often over a mobile network.</p></div>
-          <div class="fix"><strong>Zerowait</strong><p>Loads a page of your web app in the background with the user's cookies already set, and fetches the next route's code.</p></div>
+          <div class="fix"><strong>Zerowait</strong><p>Your web app is already loaded, with the user signed in.</p></div>
         </li>
         <li class="stage">
           <div><h3>Get to the right screen</h3><p>A full page load for every screen, even though the app is the same one.</p></div>
-          <div class="fix"><strong>Zerowait</strong><p>Changes route inside the running app. Next.js works with no changes; any other framework needs one line.</p></div>
+          <div class="fix"><strong>Zerowait</strong><p>Goes straight to the screen you asked for. Next.js works with no changes; any other framework needs one line.</p></div>
         </li>
         <li class="stage">
           <div><h3>Leave cleanly</h3><p>Closing mid-request leaves calls running, orders held or drafts lost.</p></div>
-          <div class="fix"><strong>Zerowait</strong><p>Runs your leave script, waits until its request has finished, then returns to the warm page for next time.</p></div>
+          <div class="fix"><strong>Zerowait</strong><p>Lets your page finish what it was doing before the screen closes, then gets ready for next time.</p></div>
         </li>
       </ol>
     </div>
@@ -124,13 +124,13 @@
       </div>
       <dl class="features">
         <div><dt>Several pages, one memory budget</dt><dd>Keep checkout, help and live warm at once. A cap releases the least recently used idle page first, never the one on screen.</dd></div>
-        <div><dt>No leaked Activities</dt><dd>When a screen closes, the WebView is handed back to the app context and stays warm for the next time.</dd></div>
-        <div><dt>Recovers from renderer crashes</dt><dd>If the browser renderer dies, your app does not. Zerowait rebuilds the WebView and warms it again by itself.</dd></div>
+        <div><dt>No memory leaks</dt><dd>Screens close cleanly, and the page stays warm for the next time.</dd></div>
+        <div><dt>Recovers from browser crashes</dt><dd>If a web page's browser process dies, your app does not. Zerowait warms the page again by itself.</dd></div>
         <div><dt>Locked to your origins</dt><dd>The native bridge and camera access exist only for pages you trust. Anything else gets nothing, even if your app holds the permissions.</dd></div>
         <div><dt>Signed in from the start</dt><dd>The user's session cookies are written before the first request.</dd></div>
         <div><dt>Time to screen built in</dt><dd>Name the text that means "ready" and Zerowait reports when it first appears, with no change to your web app.</dd></div>
-        <div><dt>Local and offline pages</dt><dd>Serve bundled pages or an app shell from your APK for any route.</dd></div>
-        <div><dt>Video call module</dt><dd>A bundled WebRTC page, native signaling relay, call audio and stats for apps that need calls.</dd></div>
+        <div><dt>Local and offline pages</dt><dd>Serve bundled pages or an app shell from your app for any route.</dd></div>
+        <div><dt>Video call module</dt><dd>A ready-made call screen that opens instantly, with your own signaling, call audio and stats.</dd></div>
       </dl>
     </div>
   </section>
@@ -198,18 +198,18 @@ window.__zerowaitNavigate = (path) =&gt; router.push(path)</code></pre>
         <div><b>64</b>unit tests</div>
       </div>
       <ul class="tests">
-        <li><strong>Opens in place</strong><span>Same WebView, same document, route changed, no page load.</span></li>
+        <li><strong>Opens in place</strong><span>The screen appears with no page load.</span></li>
         <li><strong>Back to warm after closing</strong><span>The page returns to its warm route and keeps its state.</span></li>
         <li><strong>Next.js with no changes</strong><span>A production app opens its route through the Next.js router.</span></li>
         <li><strong>Any router with one line</strong><span>The page hook, and the history fallback for pages without it.</span></li>
         <li><strong>Pages with no router</strong><span>Fall back to a normal load in the warm engine, reported as such.</span></li>
-        <li><strong>Spare engine</strong><span>Any URL loads into an already started WebView.</span></li>
+        <li><strong>Spare engine</strong><span>Any URL opens faster, even one you couldn't predict.</span></li>
         <li><strong>Memory cap</strong><span>The least recently used idle page is released; the page on screen never is.</span></li>
         <li><strong>Signed in from the first request</strong><span>Cookies readable by the page before it loads.</span></li>
         <li><strong>Leaving waits for the request</strong><span>The next visit works because the last one finished properly.</span></li>
         <li><strong>Faster than without</strong><span>The same screen, warm against cold, measured by the app.</span></li>
         <li><strong>Untrusted page</strong><span>No bridge and camera denied, even with app permissions granted.</span></li>
-        <li><strong>Renderer crash</strong><span>Recovers by itself, then works again.</span></li>
+        <li><strong>Browser crash</strong><span>Recovers by itself, then works again.</span></li>
       </ul>
     </div>
   </section>

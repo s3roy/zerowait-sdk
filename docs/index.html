@@ -59,7 +59,6 @@
     <ul>
       <li><a href="#calls">Video calls</a></li>
       <li><a href="#signaling">Signaling</a></li>
-      <li><a href="#protocol">Call page protocol</a></li>
     </ul>
     <p>Reference</p>
     <ul>
@@ -74,20 +73,11 @@
     <h1 id="overview">Zerowait docs</h1>
     <p class="lede">Zerowait keeps your app's web screens warm, so they open the moment someone taps: checkout, a help centre, onboarding or KYC, a live stream, a mini-app, a video call.</p>
 
-    <p>Your app stays native. The screens that are web pages run in a WebView that Zerowait owns: it starts the WebView early, loads your web app in the background with the user's cookies, moves the WebView into whichever screen needs it, and switches the already running app to the right route instead of loading a new page. When the screen closes, the WebView goes back to waiting for the next time.</p>
-
-    <p>A WebView screen opened from scratch pays for four things after the tap. Zerowait moves each one before it:</p>
-    <table>
-      <tr><th>Cost after the tap</th><th>What Zerowait does instead</th></tr>
-      <tr><td>Starting the browser engine (often the biggest part on Android)</td><td>Creates the WebView when the app goes idle after launch.</td></tr>
-      <tr><td>Downloading and starting your web app</td><td>Loads a page of your app (its home, a shell route) in the background, with cookies already set.</td></tr>
-      <tr><td>Rendering the screen you asked for</td><td>Changes route inside the running app (Next.js automatically, any other framework with one line). No page load.</td></tr>
-      <tr><td>Laying out a hidden page at full size</td><td>Keeps the hidden WebView sized like the screen, so it is ready to draw when shown.</td></tr>
-    </table>
+    <p>Your app stays native. The screens that are web pages open already loaded and signed in, on the route you ask for, instead of starting from a blank page. When the screen closes, it is ready again for the next time.</p>
 
     <h2 id="requirements">Requirements</h2>
     <table>
-      <tr><th>Android</th><td>Android 8.0 (API 26) or later. Android System WebView with <code>WEB_MESSAGE_LISTENER</code> and <code>DOCUMENT_START_SCRIPT</code> support (any WebView updated in the last few years). Kotlin or Java.</td></tr>
+      <tr><th>Android</th><td>Android 8.0 (API 26) or later. An up-to-date Android System WebView (any updated in the last few years). Kotlin or Java.</td></tr>
       <tr><th>iOS</th><td>iOS 15 or later. Xcode 27.2 or later (the binary is built with it). Swift or Objective-C apps. See <a href="#ios">iOS</a>.</td></tr>
       <tr><th>Web app</th><td>Anything that runs in a browser. In-place route changes need Next.js or a one-line hook; other pages still open faster because the engine and cache are warm.</td></tr>
     </table>
@@ -165,24 +155,24 @@ Zerowait.license("ZW1.…")</code></pre>
     <p>See the <a href="../terms/">license terms</a>.</p>
 
     <h2 id="lifecycle">How a warm page works</h2>
-    <p>Each <code>WarmPage</code> owns one WebView. <code>Zerowait.register</code> and <code>Zerowait.open</code> use a shared <a href="#several"><code>WarmPool</code></a>; create a <code>WarmPage</code> yourself when you want full control.</p>
+    <p>Each <code>WarmPage</code> is one web screen. <code>Zerowait.register</code> and <code>Zerowait.open</code> use a shared <a href="#several"><code>WarmPool</code></a>; create a <code>WarmPage</code> yourself when you want full control.</p>
 <div class="state-flow">Idle ── warm() ──▶ Warming ── warm page loaded ──▶ Ready
 Ready ── open(container, url) ──▶ Open
 Open ── close() ──▶ Closing ── leave confirmed ──▶ Ready (back on warmUrl)
-any ── renderer gone ──▶ Idle ──▶ warm() again, by itself</div>
+any ── browser crash ──▶ Idle ──▶ warm() again, by itself</div>
     <p><code>open()</code> always works, whatever the state. What it costs depends on where the page is:</p>
     <table>
       <tr><th><code>lastOpenMode</code></th><th>When</th><th>What happened</th></tr>
       <tr><td><code>"soft"</code></td><td>Ready, same origin, the app can change route</td><td>Route change inside the running app. Fastest.</td></tr>
-      <tr><td><code>"load"</code></td><td>Still warming, other origin, or no router hook</td><td>Normal load, in an engine that is already started and a warm cache.</td></tr>
-      <tr><td><code>"cold"</code></td><td>Never warmed</td><td>WebView created on the spot. This is what an app without Zerowait does.</td></tr>
+      <tr><td><code>"load"</code></td><td>Still warming, other origin, or no router hook</td><td>Normal page load, still faster than without Zerowait.</td></tr>
+      <tr><td><code>"cold"</code></td><td>Never warmed</td><td>Nothing prepared. This is what an app without Zerowait does.</td></tr>
     </table>
     <p>Because a page that was never warmed still opens, you can compare both paths with the same code: warm one, don't warm the other.</p>
 
     <h2 id="routes">Opening a route without a reload</h2>
-    <p>The <code>softNavigateJs</code> option decides how the running app moves to the URL you open. The default, <code>SoftNav.AUTO</code>, tries in order:</p>
+    <p>The <code>softNavigateJs</code> option decides how your web app moves to the URL you open. The default, <code>SoftNav.AUTO</code>, works with:</p>
     <ol>
-      <li><strong>Next.js</strong> (pages router and app router), through <code>window.next.router</code>. Nothing to add.</li>
+      <li><strong>Next.js</strong> (pages router and app router). Nothing to add.</li>
       <li><strong>A hook your app defines.</strong> One line, for React Router, Vue Router, Angular, SvelteKit or anything else:
 <pre><code data-lang="js">// React Router
 const navigate = useNavigate();
@@ -190,9 +180,9 @@ window.__zerowaitNavigate = (path) =&gt; navigate(path);
 
 // Vue Router
 window.__zerowaitNavigate = (path) =&gt; router.push(path);</code></pre></li>
-      <li><strong>Otherwise</strong> a normal load of the URL, still in the warm WebView.</li>
+      <li><strong>Anything else</strong>: a normal load of the URL, still faster than without Zerowait.</li>
     </ol>
-    <p>Other choices: <code>SoftNav.NEXT_JS</code>, <code>SoftNav.HISTORY</code> (<code>pushState</code> plus a <code>popstate</code> event, for routers that follow popstate when you cannot add the hook), your own JS function, or <code>null</code> to always load.</p>
+    <p>Other choices: <code>SoftNav.NEXT_JS</code>, <code>SoftNav.HISTORY</code> (for routers that follow browser history, when you cannot add the hook), your own JS function, or <code>null</code> to always load.</p>
     <p>To have the next screen's code ready, prefetch it when the warm page is ready:</p>
 <pre><code data-lang="kotlin">WarmPageConfig(
     warmUrl = "https://app.example.com/home",
@@ -206,7 +196,7 @@ window.__zerowaitNavigate = (path) =&gt; router.push(path);</code></pre></li>
     PageCookie("client", "android-app"),
     PageCookie("locale", "en-GB"),
 )
-page.setCookies(cookies)   // after login, without recreating the WebView</code></pre>
+page.setCookies(cookies)   // after login, no need to warm again</code></pre>
     <p>A cookie goes to the warm page's origin unless you give it a <code>url</code>. Values are written as given, so encode them the way your web app decodes them.</p>
 
     <h2 id="leaving">Leaving a screen</h2>
@@ -219,7 +209,7 @@ page.setCookies(cookies)   // after login, without recreating the WebView</code>
     <p>Waiting on the request rather than on the UI matters: buttons often disappear at once while the request is still in flight. <code>close(onDone)</code> tells you when it is finished.</p>
 
     <h2 id="several">Several pages and memory</h2>
-    <p>Each warm WebView costs memory. <code>WarmPool</code> keeps several named pages and a cap on how many stay warm. When a new page is warmed past <code>maxWarm</code>, the least recently used idle page is released. A page on screen is never released.</p>
+    <p>Each warm page costs memory. <code>WarmPool</code> keeps several named pages and a cap on how many stay warm. When a new page is warmed past <code>maxWarm</code>, the least recently used idle page is released. A page on screen is never released.</p>
 <pre><code data-lang="kotlin">val pool = Zerowait.pool(this, maxWarm = 2)
 pool.register("checkout", WarmPageConfig("https://shop.example.com/cart"))
 pool.register("help", WarmPageConfig("https://help.example.com/"))
@@ -233,7 +223,7 @@ override fun onTrimMemory(level: Int) {
 }</code></pre>
 
     <h2 id="spare">Unknown URLs: the spare engine</h2>
-    <p>When you can't know the URL in advance (links in messages, ads, partner pages), keep a spare engine: a started WebView on a blank page. Any URL then skips engine start-up.</p>
+    <p>When you can't know the URL in advance (links in messages, ads, partner pages), keep a spare engine. Any URL then opens faster than from scratch.</p>
 <pre><code data-lang="kotlin">Zerowait.register(this, "any", WarmPageConfig.spare())
 Zerowait.prewarm(this, "any")
 // later
@@ -269,12 +259,12 @@ page.addListener(object : WarmPageListener {
     <ul>
       <li><strong>Trusted origins</strong> are the warm page's origin plus <code>trustedOrigins</code>. Only they get the bridge, the marks script and camera or mic.</li>
       <li><strong>Camera and microphone</strong> are granted to a page only when its origin is trusted, every requested resource is camera or mic, and your app already holds the matching Android permission. Anything else is denied. Ask for permissions natively before opening a screen that needs them.</li>
-      <li><strong>The JS bridge</strong> uses <code>addWebMessageListener</code> scoped to trusted origins. There is no <code>@JavascriptInterface</code>.</li>
+      <li><strong>The page bridge</strong> (<code>ZerowaitPage</code>) exists only on trusted origins.</li>
       <li><strong>Debugging</strong> (<code>chrome://inspect</code>) is off unless you set <code>webContentsDebugging</code>. Keep it off in release builds.</li>
     </ul>
 
     <h2 id="crashes">Renderer crashes</h2>
-    <p>Android can kill the WebView renderer under memory pressure, or it can crash. Without handling, that crashes your app. Zerowait handles <code>onRenderProcessGone</code>, releases the dead WebView and, if the page was warm, warms a new one.</p>
+    <p>The system can stop a web page's browser process under memory pressure, or it can crash. Your app keeps running, and Zerowait warms the page again by itself.</p>
 
     <h2 id="processes">Multiple processes</h2>
     <p>If your app uses WebView in more than one process, each extra process needs its own data directory, or the second one crashes on start:</p>
@@ -289,10 +279,10 @@ page.addListener(object : WarmPageListener {
       <li>Set a value on the warm page (<code>window.__probe = 1</code>), open your screen, and read it back: the same value means the same document.</li>
       <li>Use <code>marks</code> to wait for the screen to be visible, and compare a warmed page with one that was never warmed.</li>
     </ul>
-    <p>The SDK package includes the end-to-end suites used for every release (a bundled help-centre app, the video call module, and a hosted Next.js app), so you can run them on your own devices.</p>
+    <p>Every release is tested end to end on Android and iOS with a bundled single-page app, a hosted Next.js app and the video call module.</p>
 
     <h2 id="calls">Video call module</h2>
-    <p>For apps that run WebRTC calls in a WebView, <code>CallEngine</code> adds a bundled call page, a call state machine, native signaling relay, call audio and WebRTC stats on top of the same warming.</p>
+    <p>For apps with video calls, <code>CallEngine</code> is a ready-made call screen that opens instantly: call states, signaling through your own channel, call audio and stats.</p>
 <pre><code data-lang="kotlin">// Application.onCreate
 Zerowait.prewarmCall(this)
 
@@ -308,13 +298,13 @@ Connected ── hangup() / remote bye ──▶ Ended ──▶ Ready
 any ── error / renderer gone ──▶ Failed ──▶ Ready</div>
     <ul>
       <li>A call started while <strong>Warming</strong> is queued and starts as soon as the page is ready.</li>
-      <li><code>CallView</code> hosts the WebView with a native overlay until the call connects; <code>setOverlay(view)</code> replaces it. It survives rotation without reloading.</li>
+      <li><code>CallView</code> shows the call, with a native overlay until it connects; <code>setOverlay(view)</code> replaces it. It survives rotation.</li>
       <li><code>CallPermissions.missing(context, media)</code> lists the runtime permissions to request first.</li>
-      <li>For tests: <code>CallOptions.Mode.LOOPBACK</code>, <code>CallOptions.Media.SYNTHETIC</code> and <code>InMemorySignaling.pair()</code> run real WebRTC without a server or camera.</li>
+      <li>For tests: <code>CallOptions.Mode.LOOPBACK</code>, <code>CallOptions.Media.SYNTHETIC</code> and <code>InMemorySignaling.pair()</code> run real calls without a server or camera.</li>
     </ul>
 
     <h2 id="signaling">Signaling</h2>
-    <p>The call page produces offers, answers and network candidates. Zerowait passes them to a <code>SignalingChannel</code> you implement and feeds incoming messages back. Because the channel is native, you can connect it before the page has loaded.</p>
+    <p>Zerowait passes the call's connection messages to a <code>SignalingChannel</code> you implement and feeds incoming messages back. Relay them as they are; you can connect the channel before the call screen opens.</p>
 <pre><code data-lang="kotlin">class MySignaling(private val room: String) : SignalingChannel {
     private val socket = MySocket.connect("wss://signal.example.com/$room")
     private var listener: ((JSONObject) -&gt; Unit)? = null
@@ -326,23 +316,6 @@ any ── error / renderer gone ──▶ Failed ──▶ Ready</div>
     override fun close() = socket.close()
 }</code></pre>
     <p>One side starts with <code>Role.CALLER</code>; the other with <code>Role.CALLEE</code>. Pass ICE servers per call with <code>CallOptions(iceServers = …)</code>.</p>
-
-    <h2 id="protocol">Call page protocol</h2>
-    <p>Only needed if you bring your own page to <code>CallEngine</code>. The page posts to <code>window.ZerowaitNative.postMessage(json)</code> and receives commands on <code>window.__zerowait.receive(json)</code>.</p>
-    <table>
-      <tr><th>Page to native</th><th>Fields</th></tr>
-      <tr><td><code>ready</code></td><td><code>instanceId</code>. Page idle; send again after every call.</td></tr>
-      <tr><td><code>state</code></td><td><code>state: "connected"</code></td></tr>
-      <tr><td><code>firstFrame</code></td><td><code>width</code>, <code>height</code></td></tr>
-      <tr><td><code>signal</code></td><td><code>data</code>, outbound signaling</td></tr>
-      <tr><td><code>error</code> / <code>ended</code></td><td><code>name</code>, <code>message</code> / <code>reason</code>; follow with <code>ready</code></td></tr>
-      <tr><td><code>stats</code></td><td>reply to <code>getStats</code></td></tr>
-    </table>
-    <table>
-      <tr><th>Native to page</th><th>Fields</th></tr>
-      <tr><td><code>start</code></td><td><code>mode</code>, <code>role</code>, <code>media</code>, <code>iceServers</code></td></tr>
-      <tr><td><code>signal</code> / <code>hangup</code> / <code>getStats</code></td><td><code>data</code> / none / <code>reqId</code></td></tr>
-    </table>
 
     <h2 id="api">API reference (Android)</h2>
     <h3>Zerowait</h3>
@@ -360,12 +333,12 @@ any ── error / renderer gone ──▶ Failed ──▶ Ready</div>
     <h3>WarmPage</h3>
     <table>
       <tr><th>Member</th><th>Description</th></tr>
-      <tr><td><code>WarmPage(context, config)</code></td><td>One WebView for one web app.</td></tr>
-      <tr><td><code>warm()</code></td><td>Create the WebView and load <code>warmUrl</code>. Safe to call repeatedly.</td></tr>
+      <tr><td><code>WarmPage(context, config)</code></td><td>One warm web screen.</td></tr>
+      <tr><td><code>warm()</code></td><td>Prepare the page at <code>warmUrl</code>. Safe to call repeatedly.</td></tr>
       <tr><td><code>open(container, url)</code></td><td>Show and navigate. Works in any state.</td></tr>
       <tr><td><code>close(onDone)</code></td><td>Run the leave scripts, then back to warm (or destroy if never warmed).</td></tr>
-      <tr><td><code>setCookies(list)</code></td><td>Write cookies without recreating the WebView.</td></tr>
-      <tr><td><code>destroy()</code></td><td>Release the WebView. It can be warmed again.</td></tr>
+      <tr><td><code>setCookies(list)</code></td><td>Write cookies, for example after login.</td></tr>
+      <tr><td><code>destroy()</code></td><td>Free the page's memory. It can be warmed again.</td></tr>
       <tr><td><code>state</code></td><td><code>IDLE</code>, <code>WARMING</code>, <code>READY</code>, <code>OPEN</code>, <code>CLOSING</code></td></tr>
       <tr><td><code>lastOpenMode</code></td><td><code>"soft"</code>, <code>"load"</code> or <code>"cold"</code></td></tr>
       <tr><td><code>webView</code></td><td>The WebView, or <code>null</code>.</td></tr>
@@ -412,20 +385,18 @@ Zerowait.page("help").close()     // back to warm for next time
 Zerowait.prewarmCall()
 callView.attach(Zerowait.engine())
 try Zerowait.engine().startCall(CallOptions(mode: .relay, role: .caller))</code></pre>
-    <table>
-      <tr><th></th><th>Android</th><th>iOS</th></tr>
-      <tr><td>Keeping a hidden page live</td><td>Detached WebView, laid out at screen size</td><td>Parked in an invisible, non-interactive view at the back of the window, at screen size. A WKWebView outside any window stops painting; a parked one keeps rendering.</td></tr>
-      <tr><td>Serving your own files</td><td><code>intercept</code></td><td>WKWebView cannot intercept http(s). Use <code>configure</code> to add a <code>WKURLSchemeHandler</code> for a custom scheme, or serve from a server.</td></tr>
-      <tr><td>Renderer crash</td><td><code>onRenderProcessGone</code></td><td><code>webViewWebContentProcessDidTerminate</code>, also when iOS reclaims memory. Re-warmed automatically.</td></tr>
-      <tr><td>Memory pressure</td><td>Call <code>releaseIdle()</code> from <code>onTrimMemory</code></td><td><code>WarmPool</code> releases idle pages on a memory warning by itself.</td></tr>
-      <tr><td>Call audio</td><td>Communication mode on by default</td><td>Off by default (<code>manageAudio</code>): WebKit sets the audio session when the page uses the mic.</td></tr>
-    </table>
+    <p>Platform notes:</p>
+    <ul>
+      <li><strong>Local pages:</strong> iOS cannot serve http(s) requests from your app. Serve bundled pages from a custom scheme (add a <code>WKURLSchemeHandler</code> with <code>configure</code>) or from a server.</li>
+      <li><strong>Memory:</strong> on a memory warning, <code>WarmPool</code> frees idle pages by itself.</li>
+      <li><strong>Call audio:</strong> <code>manageAudio</code> is off by default; iOS sets the audio session when the page uses the microphone.</li>
+    </ul>
     <p>Measured on the iOS 27.2 Simulator, a warm help-centre article opened in 82–200 ms against 430–610 ms without Zerowait. For the bundled video call page the gain on iOS is small or none (1.1–1.7 s to the first frame either way across runs), because most of that time is the WebRTC connection itself, not the page.</p>
 
     <h2 id="benchmarks">Benchmarks</h2>
     <p>All numbers are from an Android 15 emulator (arm64, software GPU), timed by the app from the tap to the screen being visible. Real phones are usually faster in absolute terms; the gap is what Zerowait removes.</p>
     <h3>Hosted Next.js web app, real backend</h3>
-    <p>Native login and home screen; the screen is a route of a production Next.js app. Without Zerowait, the WebView is created in a fresh process on tap (the first web screen after launch).</p>
+    <p>Native login and home screen; the screen is a route of a production Next.js app. Without Zerowait, the screen loads from scratch on tap (the first web screen after launch).</p>
     <table>
       <tr><th>Run</th><th>Without Zerowait</th><th>With Zerowait</th></tr>
       <tr><td>Recorded run (screen recorder on)</td><td>3461 ms</td><td>853 ms</td></tr>
@@ -442,12 +413,12 @@ try Zerowait.engine().startCall(CallOptions(mode: .relay, role: .caller))</code>
       <tr><td>3</td><td>1215 ms</td><td>469 ms</td></tr>
       <tr><td>While screen recording (demo video)</td><td>1787 ms</td><td>720 ms</td></tr>
     </table>
-    <p>A page bundled in the app gains less: with nothing to download, warming mostly saves engine start-up, and that is already paid once any WebView in the process has started.</p>
+    <p>A page bundled in the app gains less than a hosted one, because it has nothing to download.</p>
 
     <h2 id="limits">Limits</h2>
     <ul>
       <li>A warm page uses memory and, for hosted pages, network at warm time. Warm what users are likely to open next, and cap it with <code>WarmPool</code>.</li>
-      <li>In-place route changes need Next.js, the one-line hook, or a router that follows <code>popstate</code>. Other pages still benefit from a started engine and warm cache.</li>
+      <li>In-place route changes need Next.js, the one-line hook, or a router that follows browser history. Other pages still open faster, but load as a page.</li>
       <li>One <code>WarmPage</code> shows one screen at a time.</li>
       <li>The video call module does not include signaling, TURN or media servers, and calls do not continue in the background yet.</li>
     </ul>
