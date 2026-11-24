@@ -1,22 +1,7 @@
-// Checkout links. Paste your Stripe Payment Links / Lemon Squeezy URLs here before launch.
-const CHECKOUT = {
-  indie: "",
-  team: "",
-  enterprise: "",
-};
-
 // Measured on the Android 15 emulator, tap to screen on a hosted Next.js app (see /docs#benchmarks).
 const RACE = { cold: 3461, warm: 853 };
 
 (function () {
-  // ---- checkout buttons ----
-  // Until checkout links exist, buttons open a license request (GitHub issue form).
-  const REQUEST = "https://github.com/s3roy/zerowait-sdk/issues/new?template=license.yml&title=";
-  document.querySelectorAll("[data-checkout]").forEach((a) => {
-    const plan = a.dataset.checkout;
-    a.href = CHECKOUT[plan] || REQUEST + encodeURIComponent("License request: " + plan);
-  });
-
   // ---- hero race: bars fill in real time ----
   const race = document.querySelector(".race");
   if (race) {

@@ -246,3 +246,6 @@ footer a { color: var(--muted); }
   .docs-nav { position: static; max-height: none; display: none; margin-bottom: 24px; padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
   .docs-nav.open { display: block; }
 }
+
+/* Pricing buttons are labels, not links, until checkout exists. */
+.plan-cta { cursor: default; pointer-events: none; }

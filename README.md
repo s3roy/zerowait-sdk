@@ -33,6 +33,6 @@ Zerowait.license("ZW1.…")         // iOS, at launch
 ```
 
 Without a key everything works; release builds show a small "Zerowait · unlicensed" label.
-[Get a license](https://s3roy.github.io/zerowait-sdk/#pricing).
+To get a license, connect with the author.
 
 This repository contains compiled SDKs only. The SDK is not open source.
