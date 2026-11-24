@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Acme</title>
+<style>
+  :root { --ink:#14213d; --muted:#5b6b88; --line:#e3e8f2; --bg:#f6f8fc; --brand:#2f5bea; --ok:#16a36a; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--ink); background:var(--bg); }
+  header { display:flex; align-items:center; gap:10px; padding:16px 20px; background:#fff; border-bottom:1px solid var(--line); font-weight:700; }
+  .logo { width:28px; height:28px; border-radius:8px; background:var(--brand); }
+  main { padding:24px 20px 40px; }
+  h1 { font-size:26px; line-height:1.2; margin:8px 0 8px; }
+  p.lede { color:var(--muted); margin:0 0 22px; }
+  .steps { list-style:none; padding:0; margin:0 0 24px; }
+  .steps li { display:flex; gap:14px; align-items:flex-start; padding:14px; margin-bottom:10px; background:#fff; border:1px solid var(--line); border-radius:14px; }
+  .n { flex:none; width:28px; height:28px; border-radius:50%; display:grid; place-items:center; font-weight:700; font-size:14px; background:#e8eefc; color:var(--brand); }
+  .steps b { display:block; }
+  .steps span { color:var(--muted); font-size:14px; }
+  .btn { display:block; width:100%; padding:15px; border:0; border-radius:12px; background:var(--brand); color:#fff; font:600 16px system-ui,sans-serif; text-align:center; }
+  .progress { height:6px; background:var(--line); border-radius:3px; margin:0 0 20px; overflow:hidden; }
+  .progress i { display:block; height:100%; width:66%; background:var(--brand); }
+  .docs { display:grid; gap:10px; margin:0 0 20px; }
+  .doc { display:flex; justify-content:space-between; align-items:center; padding:16px; background:#fff; border:1px solid var(--line); border-radius:14px; font-weight:600; }
+  .doc.sel { border-color:var(--brand); box-shadow:0 0 0 2px #dbe4fd inset; }
+  .doc small { color:var(--muted); font-weight:400; }
+  .cam { aspect-ratio: 1.58; border:2px dashed #b9c6e4; border-radius:16px; display:grid; place-items:center; color:var(--muted); margin:0 0 20px; background:#fff; }
+  .safe { display:flex; gap:8px; align-items:center; color:var(--ok); font-size:14px; margin:0 0 18px; }
+  .home a { display:block; padding:16px; margin-bottom:10px; background:#fff; border:1px solid var(--line); border-radius:14px; color:var(--ink); text-decoration:none; font-weight:600; }
+</style>
+</head>
+<body>
+<header><span class="logo"></span>Acme</header>
+<main id="app"></main>
+<script>
+  // Demo web app for the Zerowait sample: onboarding and KYC flows, one document, routed by ?s=.
+  var screens = {
+    onboarding: function () { return '' +
+      '<h1>Welcome to Acme</h1><p class="lede">Your account is ready. Three quick steps and you can start.</p>' +
+      '<ol class="steps">' +
+      '<li><span class="n">1</span><div><b>Verify your identity</b><span>A photo of your ID, about a minute</span></div></li>' +
+      '<li><span class="n">2</span><div><b>Add a payment method</b><span>Card or bank account</span></div></li>' +
+      '<li><span class="n">3</span><div><b>Turn on notifications</b><span>So you never miss an update</span></div></li>' +
+      '</ol><button class="btn">Get started</button>'; },
+    kyc: function () { return '' +
+      '<div class="progress"><i></i></div>' +
+      '<h1>Verify your identity</h1><p class="lede">Choose a document and take a photo of the front.</p>' +
+      '<div class="docs"><div class="doc sel">Passport <small>Selected</small></div><div class="doc">Driving licence</div><div class="doc">National ID card</div></div>' +
+      '<div class="cam">Place your document in the frame</div>' +
+      '<div class="safe">&#128274; Encrypted and used only to verify you</div>' +
+      '<button class="btn">Take photo</button>'; },
+    home: function () { return '' +
+      '<h1>Acme</h1><p class="lede">Demo web app.</p><div class="home">' +
+      '<a href="?s=onboarding" onclick="go(this.search);return false">Onboarding</a>' +
+      '<a href="?s=kyc" onclick="go(this.search);return false">Verify identity</a></div>'; }
+  };
+  function render() {
+    var s = new URLSearchParams(location.search).get('s');
+    document.getElementById('app').innerHTML = (screens[s] || screens.home)();
+  }
+  function go(search) { history.pushState({}, '', location.pathname + search); render(); }
+  // The one line a web app adds so Zerowait can open a screen without a page load.
+  window.__zerowaitNavigate = function (path) { history.pushState({}, '', path); render(); };
+  window.addEventListener('popstate', render);
+  render();
+</script>
+</body>
+</html>
