@@ -10,8 +10,8 @@ let package = Package(
     targets: [
         .binaryTarget(
             name: "Zerowait",
-            url: "https://github.com/s3roy/zerowait-sdk/releases/download/0.3.1/Zerowait-0.3.1.xcframework.zip",
-            checksum: "6a80e0211b00c7e79fb79b993403be8f6ee707227e7c8682f197d3ae285e7dc1"
+            url: "https://github.com/s3roy/zerowait-sdk/releases/download/0.3.2/Zerowait-0.3.2.xcframework.zip",
+            checksum: "b707fa0c7c78fc2bd418ab4bf6610f9a2a21dcc38e5cb6e38d7c050f13278af1"
         ),
     ]
 )

@@ -46,7 +46,8 @@
       <li><a href="#routes">Opening a route without a reload</a></li>
       <li><a href="#cookies">Login and cookies</a></li>
       <li><a href="#leaving">Leaving a screen</a></li>
-      <li><a href="#several">Several pages and memory</a></li>
+      <li><a href="#several">Several pages</a></li>
+      <li><a href="#memory">Memory and battery</a></li>
       <li><a href="#spare">Unknown URLs: the spare engine</a></li>
       <li><a href="#marks">Measuring time to screen</a></li>
       <li><a href="#local">Serving local pages</a></li>
@@ -96,12 +97,12 @@ dependencyResolutionManagement {
 
 // app/build.gradle.kts
 dependencies {
-    implementation("dev.zerowait:zerowait:0.3.1")
+    implementation("dev.zerowait:zerowait:0.3.2")
 }</code></pre>
-    <p>Prefer a file? Download <a href="https://github.com/s3roy/zerowait-sdk/releases/latest">zerowait-0.3.1.aar</a>, put it in <code>app/libs/</code>, and add <code>implementation(files("libs/zerowait-0.3.1.aar"))</code> plus <code>implementation("androidx.webkit:webkit:1.12.1")</code>.</p>
+    <p>Prefer a file? Download <a href="https://github.com/s3roy/zerowait-sdk/releases/latest">zerowait-0.3.2.aar</a>, put it in <code>app/libs/</code>, and add <code>implementation(files("libs/zerowait-0.3.2.aar"))</code> plus <code>implementation("androidx.webkit:webkit:1.12.1")</code>.</p>
     <h3>iOS</h3>
     <p>In Xcode: <strong>File → Add Package Dependencies</strong>, enter <code>https://github.com/s3roy/zerowait-sdk</code>, and add the <strong>Zerowait</strong> product to your app. Or in <code>Package.swift</code>:</p>
-<pre><code data-lang="swift">.package(url: "https://github.com/s3roy/zerowait-sdk", from: "0.3.1")</code></pre>
+<pre><code data-lang="swift">.package(url: "https://github.com/s3roy/zerowait-sdk", from: "0.3.2")</code></pre>
     <p>Add <code>NSCameraUsageDescription</code> and <code>NSMicrophoneUsageDescription</code> to Info.plist only if a web screen uses the camera or microphone.</p>
     <h3>Android permissions</h3>
     <p>The library manifest adds <code>INTERNET</code>, plus <code>CAMERA</code>, <code>RECORD_AUDIO</code> and <code>MODIFY_AUDIO_SETTINGS</code> for pages that use media. Camera and microphone hardware are marked optional, so your Play Store availability does not change. Remove them with <code>tools:node="remove"</code> if no web screen of yours uses media.</p>
@@ -209,7 +210,7 @@ page.setCookies(cookies)   // after login, no need to warm again</code></pre>
 )</code></pre>
     <p>Waiting on the request rather than on the UI matters: buttons often disappear at once while the request is still in flight. <code>close(onDone)</code> tells you when it is finished.</p>
 
-    <h2 id="several">Several pages and memory</h2>
+    <h2 id="several">Several pages</h2>
     <p>Each warm page costs memory. <code>WarmPool</code> keeps several named pages and a cap on how many stay warm. When a new page is warmed past <code>maxWarm</code>, the least recently used idle page is released. A page on screen is never released.</p>
 <pre><code data-lang="kotlin">val pool = Zerowait.pool(this, maxWarm = 2)
 pool.register("checkout", WarmPageConfig("https://shop.example.com/cart"))
@@ -217,11 +218,21 @@ pool.register("help", WarmPageConfig("https://help.example.com/"))
 pool.register("live", WarmPageConfig("https://live.example.com/lobby"))
 
 pool.warm("checkout")          // warm what the user is most likely to open next
-pool.open("help", container, "https://help.example.com/article/42")
+pool.open("help", container, "https://help.example.com/article/42")</code></pre>
 
-override fun onTrimMemory(level: Int) {
-    if (level &gt;= TRIM_MEMORY_RUNNING_LOW) pool.releaseIdle()
-}</code></pre>
+    <h2 id="memory">Memory and battery</h2>
+    <p>A warm page uses about as much memory as the same page open in a browser tab, and almost nothing else while it waits.</p>
+    <table>
+      <tr><th>Measured</th><th>Result</th></tr>
+      <tr><td>Sample app with three warm pages (video call, help centre, onboarding/KYC), Android emulator, idle</td><td>About 135 MB in total: 90 MB for the app including the browser engine, 43 MB for the three pages. CPU under 2%.</td></tr>
+      <tr><td>A warm page waiting while hidden (iOS Simulator)</td><td>Paused: no animation frames, so no CPU or battery cost. It renders as soon as it is shown, with no slowdown when it opens (help article: about 100 ms warm against about 440 ms without Zerowait).</td></tr>
+    </table>
+    <ul>
+      <li><strong>Hidden pages don't run.</strong> While waiting, a warm page is not drawn, its animations are paused and it plays no sound. It costs memory, not battery.</li>
+      <li><strong>Heavier web apps use more.</strong> A large single-page app can take 50–150 MB per warm page. Warm only the one or two screens people are most likely to open next, and keep <code>maxWarm</code> low (default 2).</li>
+      <li><strong>Low memory is handled for you.</strong> When the system is short of memory, idle warm pages are released by themselves; the page on screen never is. On Android this also happens when your app goes to the background, and released pages are warmed again when the app next shows a screen. On iOS it happens on a memory warning.</li>
+      <li>To manage this yourself, set <code>releaseIdleOnLowMemory = false</code> (Android) or <code>releaseIdleOnMemoryWarning = false</code> (iOS) on the pool and call <code>releaseIdle()</code> when you choose.</li>
+    </ul>
 
     <h2 id="spare">Unknown URLs: the spare engine</h2>
     <p>When you can't know the URL in advance (links in messages, ads, partner pages), keep a spare engine. Any URL then opens faster than from scratch.</p>
@@ -360,7 +371,7 @@ any ── error / renderer gone ──▶ Failed ──▶ Ready</div>
       <tr><td><code>webContentsDebugging</code></td><td><code>false</code></td><td>Allow <code>chrome://inspect</code>.</td></tr>
     </table>
     <h3>WarmPool</h3>
-    <p><code>register(key, config)</code>, <code>warm(key)</code>, <code>open(key, container, url)</code>, <code>page(key)</code>, <code>releaseIdle()</code>, <code>releaseAll()</code>, <code>maxWarm</code>.</p>
+    <p><code>register(key, config)</code>, <code>warm(key)</code>, <code>open(key, container, url)</code>, <code>page(key)</code>, <code>releaseIdle()</code>, <code>releaseAll()</code>, <code>maxWarm</code>, <code>releaseIdleOnLowMemory</code> (default <code>true</code>).</p>
     <h3>Video call module</h3>
     <p><code>CallEngine</code> (<code>warm</code>, <code>startCall</code>, <code>hangup</code>, <code>requestStats</code>, <code>destroy</code>, <code>state</code>, <code>timings</code>, <code>signaling</code>), <code>CallView</code>, <code>CallConfig</code>, <code>CallOptions</code>, <code>CallState</code>, <code>CallListener</code>, <code>SignalingChannel</code>, <code>InMemorySignaling</code>, <code>CallPermissions</code>.</p>
 
@@ -389,7 +400,7 @@ try Zerowait.engine().startCall(CallOptions(mode: .relay, role: .caller))</code>
     <p>Platform notes:</p>
     <ul>
       <li><strong>Local pages:</strong> iOS cannot serve http(s) requests from your app. Serve bundled pages from a custom scheme (add a <code>WKURLSchemeHandler</code> with <code>configure</code>) or from a server.</li>
-      <li><strong>Memory:</strong> on a memory warning, <code>WarmPool</code> frees idle pages by itself.</li>
+      <li><strong>Memory:</strong> on a memory warning, <code>WarmPool</code> frees idle pages by itself (<code>releaseIdleOnMemoryWarning</code>).</li>
       <li><strong>Call audio:</strong> <code>manageAudio</code> is off by default; iOS sets the audio session when the page uses the microphone.</li>
     </ul>
     <p>Measured on the iOS 27.2 Simulator, a warm help-centre article opened in 82–200 ms against 430–610 ms without Zerowait. For the bundled video call page the gain on iOS is small or none (1.1–1.7 s to the first frame either way across runs), because most of that time is the WebRTC connection itself, not the page.</p>

@@ -12,7 +12,7 @@ live streams, video calls. Android and iOS.
 dependencyResolutionManagement { repositories { google(); mavenCentral(); maven("https://s3roy.github.io/zerowait-sdk/maven") } }
 
 // app/build.gradle.kts
-dependencies { implementation("dev.zerowait:zerowait:0.3.1") }
+dependencies { implementation("dev.zerowait:zerowait:0.3.2") }
 ```
 
 ## iOS (Swift Package Manager)
@@ -20,7 +20,7 @@ dependencies { implementation("dev.zerowait:zerowait:0.3.1") }
 Xcode → File → Add Package Dependencies → `https://github.com/s3roy/zerowait-sdk` → product **Zerowait**.
 
 ```swift
-.package(url: "https://github.com/s3roy/zerowait-sdk", from: "0.3.1")
+.package(url: "https://github.com/s3roy/zerowait-sdk", from: "0.3.2")
 ```
 
 ## License key

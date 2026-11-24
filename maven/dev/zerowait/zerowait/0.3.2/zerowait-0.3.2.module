@@ -1,0 +1,97 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "dev.zerowait",
+    "module": "zerowait",
+    "version": "0.3.2",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.14.3"
+    }
+  },
+  "variants": [
+    {
+      "name": "releaseVariantReleaseApiPublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.webkit",
+          "module": "webkit",
+          "version": {
+            "requires": "1.12.1"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.1.20"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "zerowait-0.3.2.aar",
+          "url": "zerowait-0.3.2.aar",
+          "size": 116985,
+          "sha512": "2c5008b16dab43059f97444ff26d54794082027e61c7b2b5636364e92cfe0420979d16498f678a0c170ed0fe8be723960ca12e4c8d58d8b90680cece9b858950",
+          "sha256": "913b5bc87f95656759a10e48e5a9fe34ba236aa844a4beec0e76a2b2d0f39af3",
+          "sha1": "5da7d16c7185f38e61eddd54b1ce93597b5ef123",
+          "md5": "407819f1125c989b3aa9d310ab4b21f9"
+        }
+      ]
+    },
+    {
+      "name": "releaseVariantReleaseRuntimePublication",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.libraryelements": "aar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "androidx.annotation",
+          "module": "annotation",
+          "version": {
+            "requires": "1.9.1"
+          }
+        },
+        {
+          "group": "androidx.webkit",
+          "module": "webkit",
+          "version": {
+            "requires": "1.12.1"
+          }
+        },
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.1.20"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "zerowait-0.3.2.aar",
+          "url": "zerowait-0.3.2.aar",
+          "size": 116985,
+          "sha512": "2c5008b16dab43059f97444ff26d54794082027e61c7b2b5636364e92cfe0420979d16498f678a0c170ed0fe8be723960ca12e4c8d58d8b90680cece9b858950",
+          "sha256": "913b5bc87f95656759a10e48e5a9fe34ba236aa844a4beec0e76a2b2d0f39af3",
+          "sha1": "5da7d16c7185f38e61eddd54b1ce93597b5ef123",
+          "md5": "407819f1125c989b3aa9d310ab4b21f9"
+        }
+      ]
+    }
+  ]
+}
