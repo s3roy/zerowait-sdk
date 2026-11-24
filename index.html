@@ -193,8 +193,8 @@ window.__zerowaitNavigate = (path) =&gt; router.push(path)</code></pre>
         <p>Zerowait's end-to-end suites run real WebViews on the Android emulator and the iOS Simulator: a bundled single-page app, a hosted Next.js app against a real backend, and the video call module with real WebRTC. The suites run against the exact files we ship, not the source.</p>
       </div>
       <div class="stat-line">
-        <div><b>32</b>end-to-end tests on Android</div>
-        <div><b>25</b>end-to-end tests on iOS</div>
+        <div><b>29</b>end-to-end tests on Android</div>
+        <div><b>29</b>end-to-end tests on iOS</div>
         <div><b>64</b>unit tests</div>
       </div>
       <ul class="tests">
@@ -210,6 +210,7 @@ window.__zerowaitNavigate = (path) =&gt; router.push(path)</code></pre>
         <li><strong>Faster than without</strong><span>The same screen, warm against cold, measured by the app.</span></li>
         <li><strong>Untrusted page</strong><span>No bridge and camera denied, even with app permissions granted.</span></li>
         <li><strong>Browser crash</strong><span>Recovers by itself, then works again.</span></li>
+        <li><strong>Silent while hidden</strong><span>A warm page plays no sound until its screen opens, and stops when it closes.</span></li>
       </ul>
     </div>
   </section>

@@ -96,12 +96,12 @@ dependencyResolutionManagement {
 
 // app/build.gradle.kts
 dependencies {
-    implementation("dev.zerowait:zerowait:0.3.0")
+    implementation("dev.zerowait:zerowait:0.3.1")
 }</code></pre>
-    <p>Prefer a file? Download <a href="https://github.com/s3roy/zerowait-sdk/releases/latest">zerowait-0.3.0.aar</a>, put it in <code>app/libs/</code>, and add <code>implementation(files("libs/zerowait-0.3.0.aar"))</code> plus <code>implementation("androidx.webkit:webkit:1.12.1")</code>.</p>
+    <p>Prefer a file? Download <a href="https://github.com/s3roy/zerowait-sdk/releases/latest">zerowait-0.3.1.aar</a>, put it in <code>app/libs/</code>, and add <code>implementation(files("libs/zerowait-0.3.1.aar"))</code> plus <code>implementation("androidx.webkit:webkit:1.12.1")</code>.</p>
     <h3>iOS</h3>
     <p>In Xcode: <strong>File → Add Package Dependencies</strong>, enter <code>https://github.com/s3roy/zerowait-sdk</code>, and add the <strong>Zerowait</strong> product to your app. Or in <code>Package.swift</code>:</p>
-<pre><code data-lang="swift">.package(url: "https://github.com/s3roy/zerowait-sdk", from: "0.3.0")</code></pre>
+<pre><code data-lang="swift">.package(url: "https://github.com/s3roy/zerowait-sdk", from: "0.3.1")</code></pre>
     <p>Add <code>NSCameraUsageDescription</code> and <code>NSMicrophoneUsageDescription</code> to Info.plist only if a web screen uses the camera or microphone.</p>
     <h3>Android permissions</h3>
     <p>The library manifest adds <code>INTERNET</code>, plus <code>CAMERA</code>, <code>RECORD_AUDIO</code> and <code>MODIFY_AUDIO_SETTINGS</code> for pages that use media. Camera and microphone hardware are marked optional, so your Play Store availability does not change. Remove them with <code>tools:node="remove"</code> if no web screen of yours uses media.</p>
@@ -147,7 +147,7 @@ Zerowait.license(this, "ZW1.…")</code></pre>
 Zerowait.license("ZW1.…")</code></pre>
     <ul>
       <li>The key is checked inside the app, offline, against your package name (Android) or bundle id (iOS). Nothing is sent anywhere.</li>
-      <li>Without a valid key nothing is blocked. Debug builds (iOS: Simulator or development signing) only log a warning; release builds show a small "Zerowait · unlicensed" label on Zerowait screens.</li>
+      <li>Nothing is ever blocked. With <strong>no key</strong>, debug builds (iOS: Simulator or development signing) only log a warning, and release builds show a small "Zerowait · unlicensed" label on Zerowait screens. A key that is <strong>present but not valid</strong> (expired for this SDK version, another app id, mistyped) shows the label in debug builds too, so you see it before you ship.</li>
       <li>A key lists your app ids (for example <code>com.acme.app</code>, or <code>com.acme.*</code> for every id under it) and an "updates until" date. It covers every SDK version released up to that date and never stops working in an app you have shipped.</li>
       <li>To check your setup, pass <code>strict = true</code> (iOS: <code>strict: true</code>): the label then shows in debug builds too. <code>Zerowait.licenseStatus</code> tells you why a key is rejected: <code>missing</code>, <code>malformed</code>, <code>bad signature</code>, <code>app id not covered</code> or <code>updates expired</code>.</li>
       <li>Keep the key in your app's code or build config. It only works for your app ids, so it is not a secret, but don't publish it.</li>
@@ -168,6 +168,7 @@ any ── browser crash ──▶ Idle ──▶ warm() again, by itself</div>
       <tr><td><code>"cold"</code></td><td>Never warmed</td><td>Nothing prepared. This is what an app without Zerowait does.</td></tr>
     </table>
     <p>Because a page that was never warmed still opens, you can compare both paths with the same code: warm one, don't warm the other.</p>
+    <p>A warm page that is not on screen is silent: audio or video it tries to play waits until its screen opens, and stops when the screen closes.</p>
 
     <h2 id="routes">Opening a route without a reload</h2>
     <p>The <code>softNavigateJs</code> option decides how your web app moves to the URL you open. The default, <code>SoftNav.AUTO</code>, works with:</p>
